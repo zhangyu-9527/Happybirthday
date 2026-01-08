@@ -3,41 +3,59 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>生日快乐！</title>
+  <title>🎂 生日快乐！</title>
   <style>
-    body {
+    * {
       margin: 0;
       padding: 0;
-      background: linear-gradient(135deg, #ffafbd, #ffc3a0);
-      height: 100vh;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+      min-height: 100vh;
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
-      font-family: "Microsoft YaHei", sans-serif;
+      font-family: "华文行楷", "STXingkai", "KaiTi", "Microsoft YaHei", cursive;
       overflow: hidden;
       position: relative;
-    }
-
-    #countdown {
-      font-size: 8rem;
       color: white;
-      text-shadow: 0 0 15px rgba(0,0,0,0.4);
-      z-index: 10;
-      transition: transform 0.3s ease;
+      transition: background 1s ease;
     }
 
-    #cake-container {
-      width: 220px;
-      height: 220px;
-      margin: 20px 0;
+    body.dark-mode {
+      background: #000 !important;
+    }
+
+    /* 主内容容器 */
+    #main-content {
+      text-align: center;
       z-index: 10;
+      transition: opacity 0.5s;
+    }
+
+    /* 倒计时数字 */
+    #countdown {
+      font-size: 7rem;
+      font-weight: bold;
+      text-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+      margin-bottom: 20px;
+      color: #fff;
+      filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7));
+    }
+
+    /* 蛋糕容器 */
+    #cake-container {
+      width: 240px;
+      height: auto;
+      margin: 0 auto;
     }
 
     .cake-part {
       opacity: 0;
       transform: translateY(20px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
+      transition: opacity 0.7s ease, transform 0.7s ease;
     }
 
     .visible {
@@ -45,22 +63,61 @@
       transform: translateY(0) !important;
     }
 
+    /* 祝福语（初始隐藏） */
     #wish {
-      font-size: 2.5rem;
-      color: white;
+      font-size: 2.4rem;
+      font-weight: bold;
+      margin-top: 24px; /* 关键：与蛋糕保持舒适间距 */
+      text-shadow: 0 0 12px rgba(255, 255, 255, 0.9);
+      opacity: 0;
+      transition: opacity 1s ease 0.3s;
+    }
+
+    body.dark-mode #wish {
+      opacity: 1;
+    }
+
+    /* 诗句区域 */
+    #poem-container {
+      position: fixed;
+      bottom: 24%;
+      left: 50%;
+      transform: translateX(-50%) translateY(30px);
+      width: 90%;
+      max-width: 500px;
       text-align: center;
       opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 1s ease, transform 1s ease;
-      z-index: 10;
-      margin-top: 20px;
+      z-index: 15;
+      transition: opacity 1.2s ease 0.6s, transform 1.2s ease 0.6s;
     }
 
-    .show {
+    body.dark-mode #poem-container {
       opacity: 1 !important;
-      transform: translateY(0) !important;
+      transform: translateX(-50%) translateY(0) !important;
     }
 
+    .poem-line {
+      font-size: 1.6rem;
+      margin: 10px 0;
+      color: #fff;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+      opacity: 0;
+      animation: poemFloat 8s infinite ease-in-out;
+    }
+
+    @keyframes poemFloat {
+      0% { opacity: 0; transform: scale(0.95); }
+      10% { opacity: 1; }
+      90% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.05); }
+    }
+
+    .poem-line:nth-child(1) { animation-delay: 0s; }
+    .poem-line:nth-child(2) { animation-delay: 2s; }
+    .poem-line:nth-child(3) { animation-delay: 4s; }
+    .poem-line:nth-child(4) { animation-delay: 6s; }
+
+    /* 烟花画布 */
     canvas {
       position: absolute;
       top: 0;
@@ -68,62 +125,81 @@
       width: 100%;
       height: 100%;
       z-index: 1;
+      pointer-events: none;
+    }
+
+    /* 倒计时结束后，主内容整体居中（包括蛋糕+祝福） */
+    body.dark-mode #main-content {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    body.dark-mode #countdown {
+      display: none;
     }
   </style>
 </head>
 <body>
-  <div id="countdown">5</div>
-
-  <!-- 蛋糕容器 -->
-  <div id="cake-container">
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-      <!-- 底层 -->
-      <g id="layer1" class="cake-part">
-        <rect x="40" y="130" width="120" height="30" fill="#d2691e" />
-        <ellipse cx="100" cy="125" rx="65" ry="14" fill="#ff69b4" />
-      </g>
-      <!-- 中层 -->
-      <g id="layer2" class="cake-part">
-        <rect x="50" y="100" width="100" height="30" fill="#8b4513" />
-        <ellipse cx="100" cy="95" rx="55" ry="12" fill="#ff69b4" />
-      </g>
-      <!-- 上层 -->
-      <g id="layer3" class="cake-part">
-        <rect x="60" y="70" width="80" height="30" fill="#cd853f" />
-        <ellipse cx="100" cy="65" rx="45" ry="10" fill="#ff69b4" />
-      </g>
-      <!-- 蜡烛 -->
-      <g id="candle" class="cake-part">
-        <rect x="95" y="50" width="4" height="15" fill="#ffa500" />
-        <ellipse cx="97" cy="45" rx="6" ry="8" fill="#ff4500" />
-        <ellipse cx="97" cy="45" rx="3" ry="5" fill="yellow" />
-      </g>
-    </svg>
-  </div>
-
-  <h2 id="wish">XXX 祝你生日快乐！</h2>
-
+  <!-- 烟花背景 -->
   <canvas id="fireworks"></canvas>
 
+  <!-- 主内容：倒计时 + 蛋糕 + 祝福语 -->
+  <div id="main-content">
+    <div id="countdown">5</div>
+    <div id="cake-container">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <g id="layer1" class="cake-part">
+          <rect x="40" y="130" width="120" height="30" fill="#d2691e" rx="4" />
+          <ellipse cx="100" cy="125" rx="65" ry="14" fill="#ff69b4" />
+        </g>
+        <g id="layer2" class="cake-part">
+          <rect x="50" y="100" width="100" height="30" fill="#8b4513" rx="4" />
+          <ellipse cx="100" cy="95" rx="55" ry="12" fill="#ff69b4" />
+        </g>
+        <g id="layer3" class="cake-part">
+          <rect x="60" y="70" width="80" height="30" fill="#cd853f" rx="4" />
+          <ellipse cx="100" cy="65" rx="45" ry="10" fill="#ff69b4" />
+        </g>
+        <g id="candle" class="cake-part">
+          <rect x="95" y="50" width="4" height="15" fill="#ffa500" />
+          <ellipse cx="97" cy="45" rx="6" ry="8" fill="#ff4500" />
+          <ellipse cx="97" cy="45" rx="3" ry="5" fill="yellow" />
+          <animate attributeName="fill" values="yellow;#ffcc00;yellow" dur="1s" repeatCount="indefinite" />
+        </g>
+      </svg>
+    </div>
+    <h2 id="wish">小明，祝你生日快乐！</h2>
+  </div>
+
+  <!-- 诗句 -->
+  <div id="poem-container">
+    <div class="poem-line">愿你如星璀璨，</div>
+    <div class="poem-line">岁岁常欢愉，</div>
+    <div class="poem-line">万事皆胜意，</div>
+    <div class="poem-line">生日快乐！</div>
+  </div>
+
   <script>
-    // ========== 倒计时与蛋糕搭建 ==========
     let count = 5;
     const countdownEl = document.getElementById("countdown");
     const cakeParts = [
-      null,               // 占位（count=5）
-      document.getElementById("layer1"), // count=5 → 显示底层
-      document.getElementById("layer2"), // count=4
-      document.getElementById("layer3"), // count=3
-      document.getElementById("candle")  // count=2（或1）
+      null,
+      document.getElementById("layer1"),
+      document.getElementById("layer2"),
+      document.getElementById("layer3"),
+      document.getElementById("candle")
     ];
 
-    // 初始隐藏所有蛋糕部分
-    cakeParts.slice(1).forEach(part => part.classList.remove("visible"));
-
+    // 启动倒计时
     const countdownInterval = setInterval(() => {
       countdownEl.textContent = count;
 
-      // 根据当前 count 显示对应蛋糕部分
       if (count === 5) cakeParts[1]?.classList.add("visible");
       else if (count === 4) cakeParts[2]?.classList.add("visible");
       else if (count === 3) cakeParts[3]?.classList.add("visible");
@@ -133,13 +209,12 @@
 
       if (count < 0) {
         clearInterval(countdownInterval);
-        countdownEl.style.display = "none";
-        document.getElementById("wish").classList.add("show");
-        startFireworks();
+        document.body.classList.add("dark-mode"); // 切黑底 + 居中布局
+        startContinuousFireworks();
       }
     }, 1000);
 
-    // ========== 烟花效果（保持不变）==========
+    // ========== 烟花系统 ==========
     const canvas = document.getElementById("fireworks");
     const ctx = canvas.getContext("2d");
     canvas.width = window.innerWidth;
@@ -159,7 +234,7 @@
         this.y = y;
         this.targetX = targetX;
         this.targetY = targetY;
-        this.speed = 2;
+        this.speed = 2 + Math.random() * 2;
         this.angle = Math.atan2(targetY - y, targetX - x);
         this.velocity = { x: Math.cos(this.angle) * this.speed, y: Math.sin(this.angle) * this.speed };
         this.trail = [];
@@ -167,7 +242,7 @@
       }
       update() {
         this.trail.push({ x: this.x, y: this.y });
-        if (this.trail.length > 5) this.trail.shift();
+        if (this.trail.length > 6) this.trail.shift();
         this.x += this.velocity.x;
         this.y += this.velocity.y;
       }
@@ -175,20 +250,21 @@
         ctx.beginPath();
         ctx.moveTo(this.x, this.y);
         ctx.lineTo(this.x - this.velocity.x, this.y - this.velocity.y);
-        ctx.strokeStyle = `hsl(${this.hue}, 100%, 50%)`;
+        ctx.strokeStyle = `hsl(${this.hue}, 100%, 60%)`;
         ctx.lineWidth = 2;
         ctx.stroke();
+
         this.trail.forEach((point, idx) => {
           ctx.beginPath();
           ctx.arc(point.x, point.y, idx / 2, 0, Math.PI * 2);
-          ctx.fillStyle = `hsla(${this.hue}, 100%, 50%, ${idx / this.trail.length})`;
+          ctx.fillStyle = `hsla(${this.hue}, 100%, 60%, ${idx / this.trail.length})`;
           ctx.fill();
         });
       }
       hasReachedTarget() {
         const dx = this.targetX - this.x;
         const dy = this.targetY - this.y;
-        return Math.sqrt(dx * dx + dy * dy) < 5;
+        return Math.sqrt(dx * dx + dy * dy) < 8;
       }
     }
 
@@ -197,10 +273,10 @@
         this.x = x;
         this.y = y;
         this.hue = hue;
-        this.radius = Math.random() * 2 + 1;
-        this.velocity = { x: (Math.random() - 0.5) * 6, y: (Math.random() - 0.5) * 6 };
+        this.radius = Math.random() * 2 + 0.5;
+        this.velocity = { x: (Math.random() - 0.5) * 5, y: (Math.random() - 0.5) * 5 };
         this.alpha = 1;
-        this.decay = Math.random() * 0.03 + 0.015;
+        this.decay = Math.random() * 0.02 + 0.01;
       }
       update() {
         this.x += this.velocity.x;
@@ -212,39 +288,35 @@
         ctx.globalAlpha = this.alpha;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `hsl(${this.hue}, 100%, 60%)`;
+        ctx.fillStyle = `hsl(${this.hue}, 100%, 70%)`;
         ctx.fill();
         ctx.restore();
       }
     }
 
-    function launchFirework() {
+    function launchRandomFirework() {
       const x = Math.random() * canvas.width;
       const y = canvas.height;
       const targetX = Math.random() * canvas.width;
-      const targetY = Math.random() * canvas.height / 2;
+      const targetY = Math.random() * canvas.height * 0.6;
       fireworks.push(new Firework(x, y, targetX, targetY));
     }
 
-    function startFireworks() {
-      let launched = 0;
-      const maxLaunches = 12;
-      const fireworkInterval = setInterval(() => {
-        launchFirework();
-        launched++;
-        if (launched >= maxLaunches) clearInterval(fireworkInterval);
-      }, 350);
+    function startContinuousFireworks() {
+      setInterval(() => {
+        if (Math.random() > 0.3) launchRandomFirework();
+      }, 800);
 
       const animate = () => {
         requestAnimationFrame(animate);
-        ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+        ctx.fillStyle = "rgba(0, 0, 0, 0.12)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         for (let i = fireworks.length - 1; i >= 0; i--) {
           fireworks[i].update();
           fireworks[i].draw();
           if (fireworks[i].hasReachedTarget()) {
-            for (let j = 0; j < 100; j++) {
+            for (let j = 0; j < 80; j++) {
               particles.push(new Particle(fireworks[i].x, fireworks[i].y, fireworks[i].hue));
             }
             fireworks.splice(i, 1);
@@ -257,6 +329,7 @@
           if (particles[i].alpha <= 0) particles.splice(i, 1);
         }
       };
+
       animate();
     }
   </script>
